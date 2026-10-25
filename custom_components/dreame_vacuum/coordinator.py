@@ -34,6 +34,7 @@ from .const import (
     DOMAIN,
     LOGGER,
     CONF_NOTIFY,
+    CONF_NOTIFY_SERVICE,
     CONF_COUNTRY,
     CONF_MAC,
     CONF_DID,
@@ -113,6 +114,7 @@ class DreameVacuumDataUpdateCoordinator(DataUpdateCoordinator[DreameVacuumDevice
         self._token = entry.data[CONF_TOKEN]
         self._host = entry.data[CONF_HOST]
         self._notify = entry.options.get(CONF_NOTIFY, True)
+        self._notify_service = entry.options.get(CONF_NOTIFY_SERVICE) or None
         self._auth_key = entry.data.get(CONF_AUTH_KEY)
         self._entry = entry
         self._ready = False
@@ -519,6 +521,29 @@ class DreameVacuumDataUpdateCoordinator(DataUpdateCoordinator[DreameVacuumDevice
                 title=self._device.name,
                 notification_id=f"{DOMAIN}_{self._device.mac}_{notification_id}",
             )
+
+            if self._notify_service:
+                self._relay_notification(content)
+
+    def _relay_notification(self, content) -> None:
+        domain, _, service = self._notify_service.partition(".")
+        if not service:
+            LOGGER.warning("Invalid notification service: %s", self._notify_service)
+            return
+
+        # Phone push, TTS etc. cannot render the headings and inline images of persistent notifications
+        message = re.sub(r"!\[[^\]]*\]\(data:[^)]*\)", "", content)
+        message = re.sub(r"^#+\s*", "", message, flags=re.MULTILINE).strip()
+        self.hass.async_create_task(
+            self._async_call_notify_service(domain, service, {"title": self._device.name, "message": message})
+        )
+
+    async def _async_call_notify_service(self, domain, service, data) -> None:
+        try:
+            await self.hass.services.async_call(domain, service, data)
+        except Exception as ex:
+            # A missing or failing notification service must never break the integration
+            LOGGER.warning("Failed to call %s.%s: %s", domain, service, ex)
 
     def _remove_persistent_notification(self, notification_id) -> None:
         persistent_notification.dismiss(self.hass, f"{DOMAIN}_{self._device.mac}_{notification_id}")

@@ -11,6 +11,7 @@ UNIT_DAYS: Final = "d"
 UNIT_AREA: Final = "m²"
 
 CONF_NOTIFY: Final = "notify"
+CONF_NOTIFY_SERVICE: Final = "notify_service"
 CONF_COLOR_SCHEME: Final = "color_scheme"
 CONF_ICON_SET: Final = "icon_set"
 CONF_COUNTRY: Final = "country"

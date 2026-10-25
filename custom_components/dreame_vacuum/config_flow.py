@@ -30,6 +30,7 @@ from .dreame import DreameVacuumProtocol, MAP_COLOR_SCHEME_LIST, MAP_ICON_SET_LI
 from .const import (
     DOMAIN,
     CONF_NOTIFY,
+    CONF_NOTIFY_SERVICE,
     CONF_COLOR_SCHEME,
     CONF_ICON_SET,
     CONF_COUNTRY,
@@ -86,6 +87,15 @@ class DreameVacuumOptionsFlowHandler(OptionsFlow):
         errors = {}
         dvc = frontend is not None or bool(self._config_entry.options.get(CONF_DVC_KEY))
         if user_input is not None:
+            service = (user_input.get(CONF_NOTIFY_SERVICE) or "").strip().lower()
+            user_input[CONF_NOTIFY_SERVICE] = service
+            if service:
+                domain, _, name = service.partition(".")
+                if not re.fullmatch(r"[a-z0-9_]+\.[a-z0-9_]+", service) or not self.hass.services.has_service(
+                    domain, name
+                ):
+                    errors["base"] = "invalid_notify_service"
+
             if dvc:
                 key = (user_input.get(CONF_DVC_KEY) or "").strip().lower()
                 user_input[CONF_DVC_KEY] = key
@@ -112,6 +122,14 @@ class DreameVacuumOptionsFlowHandler(OptionsFlow):
         data_schema = vol.Schema(
             {
                 vol.Required(CONF_NOTIFY, default=notify): SelectSelector(SelectSelectorConfig(options=NOTIFICATION, multiple=True, translation_key='notifications')),
+                vol.Optional(
+                    CONF_NOTIFY_SERVICE,
+                    default=(
+                        user_input.get(CONF_NOTIFY_SERVICE, "")
+                        if user_input
+                        else self._config_entry.options.get(CONF_NOTIFY_SERVICE, "")
+                    ),
+                ): str,
             }
         )
         if dvc:
