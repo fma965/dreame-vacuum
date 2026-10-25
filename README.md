@@ -25,7 +25,7 @@ Complete app replacement with **Home Assistant** for **Dreame** robot vacuums.
 - Almost every setting and state exposed dynamically as auto generated entities
 - Live and multi-floor map support with zone, spot and room cleaning
 - Per-room suction, water volume and cleaning order for customized cleaning
-- Persistent notifications and events for automations
+- Persistent notifications and events for automations, optionally relayed to a notify service or script (phone push, TTS, `script.notify_household`) with the `title` and `message` variables
 - Cleaning/cruising history, obstacle photos, map backup & recovery and saved WiFi maps
 - Backend translations for 40 languages
 - Complete interactive map editor via embedded [Dreame Vacuum Card](https://dreame-vacuum-card.tasshack.com/)

@@ -114,18 +114,23 @@
           "color_scheme": "Map color scheme",
           "icon_set": "Map icon set",
           "notify": "Notification",
+          "notify_service": "Notification service or script",
           "hidden_map_objects": "Hidden Map objects",
           "low_resolution": "Low resolution map",
           "square": "Square map",
           "configuration_type": "Configuration type",
           "prefer_cloud": "Prefer cloud connection",
           "dvc_key": "Dreame Vacuum Card Key"
+        },
+        "data_description": {
+          "notify_service": "Optional. Also send the selected notifications to a notify service or script, for example notify.mobile_app_phone or script.notify_household. It is called with the variables title and message. Leave empty to only use persistent notifications."
         }
       }
     },
     "error": {
       "cloud_credentials_incomplete": "Cloud credentials incomplete, please fill in username, password and country",
-      "invalid_key": "Invalid key."
+      "invalid_key": "Invalid key.",
+      "invalid_notify_service": "Notification service or script not found. Use the form notify.service_name or script.script_name."
     }
   },
   "selector": {
